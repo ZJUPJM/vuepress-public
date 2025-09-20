@@ -1,0 +1,22 @@
+name: Deploy to COS
+
+on:
+  push:
+    branches: [ "gh-pages" ]
+
+jobs:
+  UploadCOS:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.3.5
+    - name: Install coscmd
+      run: sudo pip install coscmd
+    - name: Configure coscmd
+      env:
+        SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+        SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+        BUCKET: ${{ secrets.COS_BUCKET }}
+        REGION: ${{ secrets.COS_REGION }}
+      run: coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
+    - name: Upload
+      run: coscmd upload -rfs --delete ./ / --ignore "./.git/*"
